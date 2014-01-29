@@ -1,0 +1,56 @@
+<html>
+<body>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="/testUser/js/lib/underscore-min.js"></script>
+<script type="text/javascript" src="/testUser/js/lib/backbone-min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	var app = new myApp();
+/*$.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/user_timeline.json?screen_name=github&count=15'), function(d){
+// Some magic here
+   var data=d;
+   for(var i=0,l=data.length,max=0;i<l;i++)
+   {
+   	var twtrDate = data[i].created_at;
+   	var istDate = new Date(twtrDate.replace(/^\w+ (\w+) (\d+) ([\d:]+) \+0000 (\d+)$/,"$1 $2 $4 $3 UTC")); 
+   	var day = Number(istDate.toString().substring(8,10)); 
+   	if(day>19 && day<=25)
+   	{
+   		if(max<data[i].retweet_count)
+   		{
+   			max = data[i].retweet_count;
+   			id = data[i].id_str;
+   			text = data[i].text;
+   		} 
+   	}
+   }
+  // console.log(max,id,text);
+  $.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/retweets/'+id.toString()+'.json?count=10'), function(d){
+  		console.log(d); 
+  		var userData = d, myArray = [];
+  		for(var ii=0,l=userData.length;ii<l;ii++)
+  		{
+  			var obj={}; obj.followerCount = userData[ii].user.followers_count; obj.imgUrl = userData[ii].user.profile_image_url;
+  			myArray.push(obj);
+  		}
+  		myArray.sort(function(a, b) {
+           return b.followerCount - a.followerCount;
+       });
+  		console.log(myArray);
+  		for(var j=0,len = myArray.length;j<len;j++){
+  			var listItems = '<li>'+(j+1)+'<img src="'+myArray[j].imgUrl+'"/></li>';
+  			var ul = document.getElementsByTagName('ul')[0];
+  			ul.innerHTML += listItems;	
+  		}
+  		
+    });
+  });*/
+});
+</script>
+<div>
+<ul id='container'>
+</ul>
+</div>
+<script type="text/javascript" src="/testUser/js/code/views/view.js"></script>
+</body>
+</html>
