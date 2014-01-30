@@ -41,7 +41,12 @@ var myApp = Backbone.View.extend({
 	},
 	renderGraphD3 : function(data){
 		document.getElementById('container').innerHTML='';
-		var links = [{"source": 1,"target": 0},{"source": 10,"target": 0},{"source": 1, "target": 0},{"source": 6,"target": 0},{"source": 3,"target": 0},{"source": 8,"target": 0},{"source": 5,"target": 0},{"source": 9,"target": 0},{"source": 7,"target": 0},{"source": 2,"target": 0},{"source": 4,"target": 0},{"source": 0, "target": 0}];
+		console.log(data.length);
+		if(data.length===11){
+				var links = [{"source": 0,"target": 0},{"source": 1,"target": 0},{"source": 2, "target": 0},{"source": 3,"target": 0},{"source": 4,"target": 0},{"source": 5,"target": 0},{"source": 6,"target": 0},{"source": 7,"target": 0},{"source": 8,"target": 0},{"source": 9,"target": 0},{"source": 10,"target": 0}];	
+		}else{
+				var links = [{"source": 0,"target": 0},{"source": 1,"target": 0},{"source": 2, "target": 0},{"source": 3,"target": 0},{"source": 4,"target": 0},{"source": 5,"target": 0},{"source": 6,"target": 0},{"source": 7,"target": 0},{"source": 8,"target": 0},{"source": 9,"target": 0}];				
+		}
 		var json = {links:links,nodes:data};
 		renderFDGraph(json);
     }

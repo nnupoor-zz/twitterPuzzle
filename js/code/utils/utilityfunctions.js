@@ -1,6 +1,6 @@
 var isRepeated = function(time){
 	var loggedTime = localStorage.getItem('time');
-	var setTime = Date.parse(loggedTime);
+	var setTime = Number(loggedTime);
 	var currentTime = Date.parse(time);
 	var timeDifference = (((currentTime-setTime)/1000)/60);
 	if(loggedTime!==null&&timeDifference<20){return true;}
@@ -33,7 +33,7 @@ var getTwitterData = function(self,elid){
 
 	   //based on the id of max retweeted tweet,fetch all retweeters count and push followercount and image in an array.
 	   $.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/retweets/'+id.toString()+'.json?count=10'), function(d){
-	  		var userData = d, myArray = [];
+	  		var userData = d, myArray = []; 
 	  		for(var ii=0,l=userData.length;ii<l;ii++)
 	  		{
 	  			var obj={}; obj.followerCount = userData[ii].user.followers_count; obj.imgUrl = userData[ii].user.profile_image_url;
@@ -43,8 +43,10 @@ var getTwitterData = function(self,elid){
 	  		myArray.sort(function(a, b) {
 			   return b.followerCount - a.followerCount;
 			});
+
 	  		//push the github image and set the data in LS
 	  		myArray.unshift({followerCount:'',imgUrl:handleImg});
+	  		
 	  		var arr = JSON.stringify(myArray);
 	  		localStorage.setItem('dataArray',arr);
 	  		//render 
