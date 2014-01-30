@@ -11,8 +11,8 @@ var getTwitterData = function(self,elid){
 	var elid = elid;
 	$.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/user_timeline.json?screen_name=github&count=15'), function(d){
 		//get the 15 tweets.(used hint to assume count.)
-		var currentDate = new Date();
-	   	var date = currentDate.getDate();
+	   var currentDate = new Date();
+	   var date = currentDate.getDate();
 	   var data=d; var handleImg;
 	   for(var i=0,l=data.length,max=0;i<l;i++)
 	   {
@@ -20,7 +20,6 @@ var getTwitterData = function(self,elid){
 	   	    istDate = new Date(twtrDate.replace(/^\w+ (\w+) (\d+) ([\d:]+) \+0000 (\d+)$/,"$1 $2 $4 $3 UTC")), 
 	   	    day = Number(istDate.toString().substring(8,10)); 
 	   	//take max no of tweets in the given week(hinted tweet's date.)
-	   	
 	   	if(day>date-7 && day<=date)
 	   	{
 	   		if(max<data[i].retweet_count)
@@ -44,11 +43,11 @@ var getTwitterData = function(self,elid){
 	  		myArray.sort(function(a, b) {
 			   return b.followerCount - a.followerCount;
 			});
-	  		//render the view.
-	  		 
+	  		//push the github image and set the data in LS
 	  		myArray.unshift({followerCount:'',imgUrl:handleImg});
 	  		var arr = JSON.stringify(myArray);
 	  		localStorage.setItem('dataArray',arr);
+	  		//render 
 	  		(elid==='3d')?self.renderCss3D(myArray):self.renderGraphD3(myArray); 		
 	    });
 	});
