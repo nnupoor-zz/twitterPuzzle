@@ -3,56 +3,103 @@ var isRepeated = function(time){
 	var setTime = Number(loggedTime);
 	var currentTime = Date.parse(time);
 	var timeDifference = (((currentTime-setTime)/1000)/60);
-	if(loggedTime!==null&&timeDifference<20){return true;}
+	if(loggedTime!==null&&timeDifference<20&&localStorage.getItem('dataArray')!==null){return true;}
 	else{return false;}
 }
 
+var K = function () {
+    var a = navigator.userAgent;
+    return {
+        ie: a.match(/MSIE\s([^;]*)/)
+    }
+}();
+ 
+var H = function (a) {
+    var b = new Date();
+    var c = new Date(a);
+    if (K.ie) {
+        c = Date.parse(a.replace(/( \+)/, ' UTC$1'))
+    }
+    var d = b - c;
+    var e = 1000,
+        minute = e * 60,
+        hour = minute * 60,
+        day = hour * 24,
+        week = day * 7;
+    if (isNaN(d) || d < 0) {
+        return ""
+    }
+    if (d < day) {
+        return Math.floor(d / hour) + " hours ago"
+    }
+    if (d > day && d < day * 2) {
+        return "yesterday"
+    }
+    if (d < day * 365) {
+        return Math.floor(d / day) + " days ago"
+    } else {
+        return "over a year ago"
+    }
+};
+
+
+function makeAPICall(tweetIdArray,callback){
+	var RTCountArray=[]; var count = Math.ceil(10/tweetIdArray.length);
+	for(var j=0,len=tweetIdArray.length;j<len;j++){
+	 $.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/retweets/'+tweetIdArray[j].toString()+'.json?count=10'), function(d){
+	   		 	var userData = d, myArray = []; 
+		  		for(var ii=0,l=userData.length;ii<l;ii++)
+		  		{
+		  			var obj={}; obj.followerCount = userData[ii].user.followers_count; obj.imgUrl = userData[ii].user.profile_image_url;
+		  			myArray.push(obj);
+		  		}
+		  		//sort in increasing order of follwerCount
+		  		myArray.sort(function(a, b) {
+				   return b.followerCount - a.followerCount;
+				});
+				console.log(myArray);
+				var array = myArray.slice(0,count);
+				console.log(array);
+				RTCountArray.push(array);
+				
+				if(RTCountArray.length===tweetIdArray.length)
+				{
+					var userArray = _.flatten(RTCountArray[0]);
+					callback(userArray);
+				}
+		});	
+	}
+}
+ 
 var getTwitterData = function(self,elid){
 	var elid = elid;
-	$.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/user_timeline.json?screen_name=github&count=15'), function(d){
+	$.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/user_timeline.json?screen_name=dhh&count=15'), function(d){
 		//get the 15 tweets.(used hint to assume count.)
-	   var currentDate = new Date();
-	   var date = currentDate.getDate();
-	   var data=d; var handleImg;
+	   var data=d, handleImg = data[0].user.profile_image_url, tweetArray=[], tweetIdArray=[];
+	   
 	   for(var i=0,l=data.length,max=0;i<l;i++)
 	   {
-	   	var twtrDate = data[i].created_at, 
-	   	    istDate = new Date(twtrDate.replace(/^\w+ (\w+) (\d+) ([\d:]+) \+0000 (\d+)$/,"$1 $2 $4 $3 UTC")), 
-	   	    day = Number(istDate.toString().substring(8,10)); 
-	   	//take max no of tweets in the given week(hinted tweet's date.)
-	   	if(day>date-7 && day<=date)
+	   	var createDate = H(data[i].created_at); 
+	   	//console.log(createDate);
+	   	if(createDate!=='yesterday' && createDate!=='over a year ago' && data[i].in_reply_to_screen_name===null && data[i].retweeted_status===undefined)
 	   	{
-	   		if(max<data[i].retweet_count)
-	   		{
-	   			id = data[i].id_str;
-	   			max = data[i].retweet_count;
-	   			handleImg = data[i].user.profile_image_url;
-	   		} 
+	   		//tweetArray.push(data[i]);
+	   		tweetIdArray.push(data[i].id_str);
 	   	}
 	   }
-
+	    console.log(tweetIdArray);
 	   //based on the id of max retweeted tweet,fetch all retweeters count and push followercount and image in an array.
-	   $.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/retweets/'+id.toString()+'.json?count=10'), function(d){
-	  		var userData = d, myArray = []; 
-	  		for(var ii=0,l=userData.length;ii<l;ii++)
-	  		{
-	  			var obj={}; obj.followerCount = userData[ii].user.followers_count; obj.imgUrl = userData[ii].user.profile_image_url;
-	  			myArray.push(obj);
-	  		}
-	  		//sort in decreasing order of follwerCount
-	  		myArray.sort(function(a, b) {
-			   return b.followerCount - a.followerCount;
-			});
-
+	    makeAPICall(tweetIdArray,function(userArray){
+	    	_.first(userArray,10);
 	  		//push the github image and set the data in LS
-	  		myArray.unshift({followerCount:'',imgUrl:handleImg});
-	  		
-	  		var arr = JSON.stringify(myArray);
+	  		userArray.unshift({followerCount:'',imgUrl:handleImg});
+	  		console.log(userArray);
+	  		var arr = JSON.stringify(userArray);
 	  		localStorage.setItem('dataArray',arr);
 	  		//render 
-	  		(elid==='3d')?self.renderCss3D(myArray):self.renderGraphD3(myArray); 		
+	  		(elid==='3d')?self.renderCss3D(userArray):self.renderGraphD3(userArray); 		
 	    });
-	});
+	 });
 }
 
 var renderFDGraph = function(json){

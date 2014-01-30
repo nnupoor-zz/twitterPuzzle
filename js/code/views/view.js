@@ -32,7 +32,7 @@ var myApp = Backbone.View.extend({
 		    document.getElementById('container').innerHTML='';
 			var d = data, table = [];
 			_.each(d, function(n,i){
-				if(i===0){table.push(''); table.push(n.imgUrl); table.push(6); table.push(1);}
+				if(i===0){table.push(''); table.push(n.imgUrl); table.push([d.length/2]); table.push(1);}
 				else{table.push(i); table.push(n.imgUrl); table.push(i+1); table.push(2);}
 			});
 		
