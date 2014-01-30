@@ -3,7 +3,7 @@ var isRepeated = function(time){
 	var setTime = Date.parse(loggedTime);
 	var currentTime = Date.parse(time);
 	var timeDifference = (((currentTime-setTime)/1000)/60);
-	if(loggedTime!==null&&timeDifference<5){return true;}
+	if(loggedTime!==null&&timeDifference<20){return true;}
 	else{return false;}
 }
 
