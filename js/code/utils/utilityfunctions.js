@@ -37,7 +37,8 @@ var H = function (a) {
     }
     if (d < day * 365) {
         return Math.floor(d / day) + " days ago"
-    } else {
+    } 
+    else {
         return "over a year ago"
     }
 };
@@ -54,15 +55,16 @@ function makeAPICall(tweetIdArray,callback){
 	          myArray.push(obj);
           }
           myArray.sort(function(a, b) {
-           return b.followerCount - a.followerCount;
+           return a.followerCount - b.followerCount;
         });
     
         var array = myArray.slice(0,count);
         RTCountArray.push(array);
-        
+        console.log(RTCountArray);
         if(RTCountArray.length===tweetIdArray.length)
         {
-	        var userArray = _.flatten(RTCountArray[0]);
+	        var userArray = _.flatten(RTCountArray);
+	        console.log(userArray);
 	        callback(userArray);
         }
        });        
@@ -71,26 +73,34 @@ function makeAPICall(tweetIdArray,callback){
  
 var getTwitterData = function(self,elid){
         var elid = elid;
-        $.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/user_timeline.json?screen_name=dhh&count=15'), function(d){
+        $.getJSON('/testUser/twitterAPI.php?url='+encodeURIComponent('statuses/user_timeline.json?screen_name=martinfowler&count=10'), function(d){
                 //get the 15 tweets.(used hint to assume count.)
            var data=d, handleImg = data[0].user.profile_image_url, tweetArray=[], tweetIdArray=[];
            
            for(var i=0,l=data.length,max=0;i<l;i++)
            {
                    var createDate = H(data[i].created_at); 
-                   if(createDate!=='yesterday' && createDate!=='over a year ago' && data[i].in_reply_to_screen_name===null && data[i].retweeted_status===undefined)
+                   if(createDate!=='over a year ago' && data[i].in_reply_to_screen_name===null && data[i].retweeted_status===undefined)
                    {
                      tweetIdArray.push(data[i].id_str);
                    }
            }
+
+           if(_.isEmpty(tweetIdArray)){tweetIdArray.push(data[0]); tweetIdArray.push(data[1]);}
+           
+
             makeAPICall(tweetIdArray,function(userArray){
                   var array = userArray.slice(0,10);
                   //push the github image and set the data in LS
+                  array.sort(function(a, b) {
+			           return b.followerCount - a.followerCount;
+			        });
                   array.unshift({followerCount:'',imgUrl:handleImg});
+                  console.log(array);
                   var arr = JSON.stringify(array);
                   localStorage.setItem('dataArray',arr);
                   //render 
-                  (elid==='3d')?self.renderCss3D(userArray):self.renderGraphD3(userArray);                 
+                  (elid==='3d')?self.renderCss3D(array):self.renderGraphD3(array);                 
             });
          });
 }
@@ -142,7 +152,7 @@ var force = d3.layout.force()
             div.transition()        
                 .duration(200)      
                 .style("opacity", .9);      
-            div .html( i )  
+            div .html( d.followerCount )  
                 .style("left", (d3.event.pageX) + "px")     
                 .style("top", (d3.event.pageY - 28) + "px");    
             })                  
